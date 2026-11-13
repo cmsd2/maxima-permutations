@@ -1,0 +1,14 @@
+[package]
+name = "permutations"
+version = "0.1.0"
+description = "Permutation groups for Maxima, built on cl-permutation (SBCL only)"
+license = "MIT"
+entry = "permutations.mac"
+repository = "https://github.com/cmsd2/maxima-permutations"
+keywords = ["permutations", "groups", "group-theory", "schreier-sims"]
+
+[lisp]
+quicklisp_systems = ["cl-permutation"]
+
+[test]
+files = ["rtest_permutations.mac"]

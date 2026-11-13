@@ -196,3 +196,181 @@ block([T : pgrp_cayley_table(pgrp_symmetric(3)), body],
 
 errcatch(pgrp_cayley_table([[1,2,3], [2,3,1]]));
 [];
+
+/* Structure. Facts from D&F and standard tables of small groups. */
+(S3 : pgrp_symmetric(3), S4 : pgrp_symmetric(4), A4 : pgrp_alternating(4),
+ A5 : pgrp_alternating(5), D8 : pgrp_dihedral(4), Q8 : pgrp_quaternion(),
+ V4 : pgrp([2,1,4,3], [3,4,1,2]), o(G) := pgrp_order(G), 0);
+0;
+
+/* Groups from actions: GL_2(F_2) on its nonzero vectors is S3 (D&F §1.4) */
+block([GL : pgrp_from_action([matrix([1,1],[0,1]), matrix([0,1],[1,0])],
+                             [matrix([1],[0]), matrix([0],[1]), matrix([1],[1])],
+                             lambda([m, v], mod(m . v, 2)))],
+  [o(GL), pgrp_isomorphic_p(GL, S3)]);
+[6, true];
+
+pgrp_action_perm(matrix([0,1],[1,0]), [matrix([1],[0]), matrix([0],[1]), matrix([1],[1])],
+                 lambda([m, v], m . v));
+[2, 1, 3];
+
+errcatch(pgrp_from_action([2], [1, 2, 3], lambda([g, x], g*x)));
+[];
+
+/* Orbits, stabilisers, orbit-stabiliser */
+[pgrp_orbit(pgrp([2,1,3,4,5], [1,2,4,5,3]), 3), o(pgrp_stabiliser(S4, 1))];
+[[3, 4, 5], 6];
+
+every(lambda([x], is(length(pgrp_orbit(D8, x)) * o(pgrp_stabiliser(D8, x)) = o(D8))), [1, 2, 3, 4]);
+true;
+
+/* Counting with the rotations of a cube acting on its faces
+   (1 up, 2 down, 3 front, 4 right, 5 back, 6 left) */
+(cube : pgrp([1,2,4,5,6,3], [4,6,3,2,5,1]), [o(cube), pgrp_count_orbits(cube, 3)]);
+[24, 57];
+
+/* Two-colour necklaces of six beads up to rotation and reflection */
+pgrp_count_orbits(pgrp_dihedral(6), 2);
+13;
+
+expand(pgrp_count_orbits(cube, k));
+k^6/24 + k^4/8 + k^3/2 + k^2/3;
+
+pgrp_cycle_index(S3);
+(x[1]^3 + 3*x[1]*x[2] + 2*x[3])/6;
+
+/* Substituting x[k] = r^k + b^k counts colourings by how often each colour appears */
+coeff(expand(subst(makelist(x[k] = r^k + b^k, k, 1, 4), pgrp_cycle_index(cube))), r, 3);
+2*b^3;
+
+/* Cayley's theorem */
+[o(pgrp_regular(D8)), pgrp_degree(pgrp_regular(D8)), pgrp_isomorphic_p(pgrp_regular(Q8), Q8)];
+[8, 8, true];
+
+/* Homomorphisms: sign S4 -> Z2 has kernel A4 (D&F §3.5) */
+(sgn : pgrp_hom(S4, pgrp_cyclic(2), map(lambda([g], if pgrp_sign(g) = 1 then [1,2] else [2,1]),
+                                        pgrp_generators(S4))),
+ [pgrp_hom_p(sgn), o(pgrp_kernel(sgn)), o(pgrp_image(sgn)), pgrp_isomorphic_p(pgrp_kernel(sgn), A4),
+  pgrp_hom_apply(sgn, [2,3,1,4]), o(pgrp_preimage(sgn, pgrp([1,2])))]);
+[true, 12, 2, true, [1, 2], 12];
+
+/* Images that respect no relation are rejected */
+[errcatch(pgrp_hom(pgrp_cyclic(3), pgrp_cyclic(2), [[2,1]])),
+ errcatch(pgrp_hom(S4, S3, [[2,1,3]]))];
+[[], []];
+
+/* First isomorphism theorem: |G| = |ker| |im| */
+block([f : pgrp_quotient_hom(S4, V4)], [o(pgrp_kernel(f)) * o(pgrp_image(f)), o(S4)]);
+[24, 24];
+
+/* Isomorphisms */
+[pgrp_isomorphic_p(D8, Q8), pgrp_isomorphic_p(pgrp_cyclic(6), pgrp_direct_product(pgrp_cyclic(2), pgrp_cyclic(3))),
+ pgrp_isomorphic_p(pgrp_cyclic(4), V4), pgrp_isomorphic_p(S3, pgrp_dihedral(3))];
+[false, true, false, true];
+
+/* The five groups of order 8 are pairwise non-isomorphic */
+block([eight : [pgrp_cyclic(8), pgrp_direct_product(pgrp_cyclic(4), pgrp_cyclic(2)),
+                pgrp_direct_product(V4, pgrp_cyclic(2)), D8, Q8]],
+  [map(o, eight),
+   every(lambda([i], every(lambda([j], is(i = j) or not pgrp_isomorphic_p(eight[i], eight[j])),
+                           [1,2,3,4,5])), [1,2,3,4,5])]);
+[[8, 8, 8, 8, 8], true];
+
+/* Subgroups: D8 has 10, Q8 has 6, S4 has 30 */
+map(lambda([G], length(pgrp_subgroups(G))), [D8, Q8, S4]);
+[10, 6, 30];
+
+/* Lagrange: every subgroup order divides the group order */
+every(lambda([H], is(mod(24, o(H)) = 0)), pgrp_subgroups(S4));
+true;
+
+[o(pgrp_subgroup(S4, [[2,3,1,4]])), errcatch(pgrp_subgroup(A4, [[2,1,3,4]]))];
+[3, []];
+
+/* Centres and centralisers: Z(D8) = {1, r^2}; C_Q8(i) = {±1, ±i} (D&F §2.2) */
+[pgrp_elements(pgrp_centre(D8)), o(pgrp_centre(S4)), o(pgrp_centre(Q8)),
+ o(pgrp_centraliser(Q8, [pgrp_generators(Q8)[1]]))];
+[[[1,2,3,4], [3,4,1,2]], 1, 2, 4];
+
+[pgrp_abelian_p(V4), pgrp_abelian_p(D8), pgrp_cyclic_p(pgrp_cyclic(6)), pgrp_cyclic_p(V4)];
+[true, false, true, false];
+
+o(pgrp_normaliser(S4, pgrp_sylow(S4, 3)));
+6;
+
+/* Cosets: left and right cosets differ for a subgroup that isn't normal */
+block([H : pgrp([2,1,3])],
+  [map(length, pgrp_left_cosets(S3, H)), is(pgrp_left_cosets(S3, H) = pgrp_right_cosets(S3, H)),
+   is(pgrp_left_cosets(S4, A4) = pgrp_right_cosets(S4, A4)), pgrp_index(S4, A4)]);
+[[2, 2, 2], false, true, 2];
+
+errcatch(pgrp_index(A4, S4));
+[];
+
+/* Quotients: S4/V4 ≅ S3, D8/Z(D8) ≅ V4 */
+[o(pgrp_quotient(S4, V4)), pgrp_isomorphic_p(pgrp_quotient(S4, V4), S3),
+ pgrp_isomorphic_p(pgrp_quotient(D8, pgrp_centre(D8)), V4), errcatch(pgrp_quotient(S3, pgrp([2,1,3])))];
+[6, true, true, []];
+
+/* Conjugacy classes: sizes add up to the order (the class equation) */
+map(lambda([G], sort(map(length, pgrp_conjugacy_classes(G)))), [S4, A5, D8]);
+[[1, 3, 6, 6, 8], [1, 12, 12, 15, 20], [1, 1, 2, 2, 2]];
+
+/* In S_n, conjugacy classes are the cycle types */
+every(lambda([c], is(length(unique(map(pgrp_cycle_type, c))) = 1)), pgrp_conjugacy_classes(S4));
+true;
+
+pgrp_conjugacy_class(S3, [2,1,3]);
+[[1,3,2], [2,1,3], [3,2,1]];
+
+/* Normal subgroups, simplicity */
+[map(o, pgrp_normal_subgroups(S4)), map(o, pgrp_normal_subgroups(A5)), pgrp_simple_p(A5),
+ pgrp_simple_p(S4), pgrp_simple_p(pgrp_cyclic(5)), o(pgrp_normal_closure(S4, [[2,1,3,4]]))];
+[[1, 4, 12, 24], [1, 60], true, false, true, 24];
+
+/* Derived and composition series: S4 is solvable, A5 is not (D&F §3.4, §6.1) */
+[map(o, pgrp_derived_series(S4)), o(pgrp_derived_subgroup(S4)), pgrp_solvable_p(S4),
+ map(o, pgrp_derived_series(A5)), pgrp_solvable_p(A5)];
+[[24, 12, 4, 1], 12, true, [60], false];
+
+map(o, pgrp_composition_series(S4));
+[24, 12, 4, 2, 1];
+
+/* Lower central series: D8 is nilpotent, S3 is not */
+[map(o, pgrp_lower_central_series(D8)), pgrp_nilpotent_p(D8), pgrp_nilpotent_p(S3), pgrp_nilpotent_p(Q8)];
+[[8, 2, 1], true, false, true];
+
+/* Sylow subgroups (D&F §4.5) */
+[pgrp_sylow_count(S4, 2), pgrp_sylow_count(S4, 3), pgrp_sylow_count(A5, 2),
+ pgrp_sylow_count(A5, 3), pgrp_sylow_count(A5, 5), o(pgrp_sylow(S4, 2)), o(pgrp_sylow(A5, 5))];
+[3, 4, 5, 10, 6, 8, 5];
+
+/* n_p divides |G| and is 1 mod p */
+block([counts : [[S4, 2], [S4, 3], [A5, 2], [A5, 3], [A5, 5]]],
+  every(lambda([c], block([n : pgrp_sylow_count(c[1], c[2])],
+                      is(mod(n, c[2]) = 1 and mod(o(c[1]), n) = 0))), counts));
+true;
+
+[length(pgrp_sylow_subgroups(S4, 3)), errcatch(pgrp_sylow(S4, 4))];
+[4, []];
+
+/* Products and abelian invariants */
+[o(pgrp_direct_product(S3, pgrp_cyclic(4))), pgrp_degree(pgrp_direct_product(S3, pgrp_cyclic(4)))];
+[24, 7];
+
+map(pgrp_abelian_invariants, [pgrp_cyclic(8), pgrp_direct_product(pgrp_cyclic(4), pgrp_cyclic(2)),
+                              pgrp_direct_product(V4, pgrp_cyclic(2)),
+                              pgrp_direct_product(pgrp_cyclic(2), pgrp_cyclic(3)), pgrp([1])]);
+[[8], [2, 4], [2, 2, 2], [6], []];
+
+errcatch(pgrp_abelian_invariants(S3));
+[];
+
+/* The stabiliser chain: orbit sizes multiply to the order, without listing
+   elements; M11 has order 7920 */
+(M11 : pgrp(pgrp_from_cycles([makelist(i, i, 1, 11)]), pgrp_from_cycles([[3,7,11,8], [4,10,5,6]], 11)),
+ [pgrp_stabiliser_chain(S4), map(lambda([s], length(s[2])), pgrp_stabiliser_chain(M11)), o(M11)]);
+[[[4, [1,2,3,4]], [3, [1,2,3]], [2, [1,2]]], [11, 10, 9, 8], 7920];
+
+apply("*", map(lambda([s], length(s[2])), pgrp_stabiliser_chain(rubik)));
+43252003274489856000;

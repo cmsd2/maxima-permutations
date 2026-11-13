@@ -9,4 +9,6 @@
   :components
   ((:file "handle")
    (:file "display")
-   (:file "groups")))
+   (:file "groups")
+   (:file "perms")
+   (:file "named")))

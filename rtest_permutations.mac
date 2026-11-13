@@ -96,3 +96,103 @@ errcatch(pgrp());
 
 errcatch(pgrp_order([2,1]));
 [];
+
+/* Single permutations. Composition reads right to left as in Dummit and
+   Foote §1.3: pgrp_compose(s, t) is s∘t, applying t first. */
+(c(l) := pgrp_from_cycles(l), 0);
+0;
+
+/* D&F §1.3: (1 2 3)∘(1 2)(3 4) = (1 3 4) */
+pgrp_cycles(pgrp_compose(c([[1,2,3]]), c([[1,2],[3,4]])));
+[[1, 3, 4]];
+
+/* D&F §1.3: (1 2)∘(1 3) = (1 3 2) and (1 3)∘(1 2) = (1 2 3) */
+[pgrp_cycles(pgrp_compose(c([[1,2]]), c([[1,3]]))),
+ pgrp_cycles(pgrp_compose(c([[1,3]]), c([[1,2]])))];
+[[[1, 3, 2]], [[1, 2, 3]]];
+
+/* A list of cycles is read as a product, right to left */
+pgrp_cycles(c([[1,2],[1,3]]));
+[[1, 3, 2]];
+
+/* D&F §1.3: the inverse writes each cycle backwards */
+(a : c([[1,12,8,10,4], [2,13], [5,11,7], [6,9]]), pgrp_cycles(pgrp_inverse(a)));
+[[1, 4, 10, 8, 12], [2, 13], [5, 7, 11], [6, 9]];
+
+[pgrp_element_order(a), pgrp_sign(a), pgrp_cycle_type(a)];
+[30, 1, [5, 3, 2, 2, 1]];
+
+/* permult reads the other way: permult(p, q) applies p first */
+block([e : pgrp_elements(pgrp_symmetric(4))],
+  every(lambda([p], every(lambda([q], permult(p, q) = pgrp_compose(q, p)), e)), e));
+true;
+
+/* More arguments compose right to left too, and shorter lists are padded */
+block([p : [2,3,1,4], q : [1,2,4,3], r : [4,3,2,1]],
+  [is(pgrp_compose(p, q, r) = pgrp_compose(p, pgrp_compose(q, r))),
+   pgrp_compose([2,1], [1,3,2])]);
+[true, [2, 3, 1]];
+
+[pgrp_power([2,3,1], 3), pgrp_power([2,3,1], -1), pgrp_power([2,3,1], 0),
+ pgrp_inverse([2,3,1]), pgrp_identity(3), pgrp_cycles([1,2,3])];
+[[1,2,3], [3,1,2], [1,2,3], [3,1,2], [1,2,3], []];
+
+[c([[2,3]]), pgrp_from_cycles([[2,3]], 5), pgrp_from_cycles([], 3)];
+[[1,3,2], [1,3,2,4,5], [1,2,3]];
+
+[errcatch(pgrp_from_cycles([[1,2,1]])), errcatch(pgrp_from_cycles([[1,5]], 3)),
+ errcatch(pgrp_power([2,1], 1/2))];
+[[], [], []];
+
+/* sign is a homomorphism and element orders divide |S4| */
+block([e : pgrp_elements(pgrp_symmetric(4))],
+  [every(lambda([p], every(lambda([q], pgrp_sign(pgrp_compose(p, q)) = pgrp_sign(p)*pgrp_sign(q)), e)), e),
+   every(lambda([p], is(mod(24, pgrp_element_order(p)) = 0)), e),
+   length(sublist(e, lambda([p], pgrp_sign(p) = 1)))]);
+[true, true, 12];
+
+/* Named groups */
+[makelist(pgrp_order(pgrp_symmetric(n)), n, 1, 6),
+ makelist(pgrp_order(pgrp_alternating(n)), n, 1, 6),
+ makelist(pgrp_order(pgrp_cyclic(n)), n, 1, 6)];
+[[1, 2, 6, 24, 120, 720], [1, 1, 3, 12, 60, 360], [1, 2, 3, 4, 5, 6]];
+
+/* D&F §1.2: |D_2n| = 2n, r^n = s^2 = 1, rs = sr^-1, and s fixes vertex 1 */
+makelist(block([D : pgrp_dihedral(n), r, s],
+           [r, s] : pgrp_generators(D),
+           map(is, [pgrp_order(D) = 2*n, pgrp_power(r, n) = pgrp_identity(n),
+                    pgrp_power(s, 2) = pgrp_identity(n),
+                    pgrp_compose(r, s) = pgrp_compose(s, pgrp_inverse(r)), s[1] = 1])),
+         n, 3, 8);
+[[true, true, true, true, true], [true, true, true, true, true],
+ [true, true, true, true, true], [true, true, true, true, true],
+ [true, true, true, true, true], [true, true, true, true, true]];
+
+map(pgrp_cycles, pgrp_generators(pgrp_dihedral(4)));
+[[[1, 2, 3, 4]], [[2, 4]]];
+
+/* Q8 on the points 1, -1, i, -i, j, -j, k, -k: ij = k, ji = -k, i^2 = -1,
+   and six of its elements have order 4 */
+block([Q : pgrp_quaternion(), i, j],
+  [i, j] : pgrp_generators(Q),
+  [pgrp_order(Q), pgrp_compose(i, j)[1], pgrp_compose(j, i)[1], pgrp_compose(i, i)[1],
+   is(pgrp_compose(i, i) = pgrp_compose(j, j)),
+   sort(map(pgrp_element_order, pgrp_elements(Q)))]);
+[8, 7, 8, 2, true, [1, 2, 4, 4, 4, 4, 4, 4]];
+
+/* Cayley tables: row a, column b holds a∘b */
+pgrp_cayley_table(pgrp_cyclic(3));
+matrix([∘, 1, 2, 3], [1, 1, 2, 3], [2, 2, 3, 1], [3, 3, 1, 2]);
+
+pgrp_cayley_table([[1,2], [2,1]], [e, t]);
+matrix([∘, e, t], [e, e, t], [t, t, e]);
+
+/* Each row and column of a group's table holds every element once */
+block([T : pgrp_cayley_table(pgrp_symmetric(3)), body],
+  body : submatrix(1, T, 1),
+  [every(lambda([row], is(sort(row) = [1,2,3,4,5,6])), args(body)),
+   every(lambda([col], is(sort(col) = [1,2,3,4,5,6])), args(transpose(body)))]);
+[true, true];
+
+errcatch(pgrp_cayley_table([[1,2,3], [2,3,1]]));
+[];

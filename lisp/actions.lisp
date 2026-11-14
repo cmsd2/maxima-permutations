@@ -114,3 +114,47 @@
                 (mapcar (lambda (e) (gethash (perm-list-compose s e) table)) elements))
               (perm-group-generator-lists h))
       '$pgrp_regular))))
+
+(defun $pgrp_colouring_orbits (g k)
+  "One colouring from each orbit of g on the colourings of its points with
+   colours 1, ..., k, as lists: entry i is the colour of point i. Each is
+   the least in its orbit in lexicographic order, and there are
+   pgrp_count_orbits(g, k) of them. g moves a colouring by carrying the
+   colour at point i to point g(i)."
+  (let* ((h (perm-group-unwrap g '$pgrp_colouring_orbits))
+         (n (perm-group-handle-degree h))
+         (gens (perm-group-generator-lists h)))
+    (unless (and (integerp k) (>= k 1))
+      (merror "pgrp_colouring_orbits: the number of colours must be a positive integer, got: ~M" k))
+    (when (> (expt k n) $pgrp_max_elements)
+      (merror "pgrp_colouring_orbits: ~M colourings is more than pgrp_max_elements = ~M"
+              (expt k n) $pgrp_max_elements))
+    (labels ((decode (m)
+               ;; Colouring number m (0-based), most significant point first
+               (let ((digits '()))
+                 (dotimes (i n) (multiple-value-bind (q r) (floor m k) (push (1+ r) digits) (setf m q)))
+                 digits))
+             (encode (c)
+               (reduce (lambda (acc d) (+ (* acc k) (1- d))) c :initial-value 0))
+             (recolour (s c)
+               (let ((new (make-list n)))
+                 (loop :for colour :in c :for i :from 0 :do (setf (nth (1- (nth i s)) new) colour))
+                 new)))
+      (let ((seen (make-hash-table))
+            (reps '()))
+        (dotimes (m (expt k n))
+          (unless (gethash m seen)
+            (let ((start (decode m)))
+              (push start reps)
+              (setf (gethash m seen) t)
+              (let ((frontier (list start)))
+                (loop :while frontier
+                      :do (let ((new '()))
+                            (dolist (c frontier)
+                              (dolist (s gens)
+                                (let* ((d (recolour s c)) (code (encode d)))
+                                  (unless (gethash code seen)
+                                    (setf (gethash code seen) t)
+                                    (push d new)))))
+                            (setf frontier new)))))))
+        (maxima-perm-lists (nreverse reps))))))

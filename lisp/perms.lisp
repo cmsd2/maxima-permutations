@@ -52,6 +52,44 @@
             (make-list (- (length p) (reduce #'+ moved :key #'length))
                        :initial-element 1))))
 
+(defun perm-list-conjugate (x g)
+  "g x g^-1, the conjugate of X by G (D&F §2.2)."
+  (perm-list-compose g (perm-list-compose x (perm-list-inverse g))))
+
+(defun perm-list-commutator (x y)
+  "[x, y] = x^-1 y^-1 x y (D&F §5.4)."
+  (perm-list-compose (perm-list-inverse x)
+                     (perm-list-compose (perm-list-inverse y)
+                                        (perm-list-compose x y))))
+
+;;; Maxima-level conjugates, commutators and fixed points. Arguments of
+;;; different lengths are padded with fixed points first.
+
+(defun perm-lists-at-common-degree (lists)
+  (let ((n (reduce #'max lists :key #'length :initial-value 1)))
+    (mapcar (lambda (l) (perm-list-fit l n)) lists)))
+
+(defun $pgrp_conjugate (x g)
+  "g x g^-1, the conjugate of x by g."
+  (destructuring-bind (xl gl)
+      (perm-lists-at-common-degree (list (perm-list-from-maxima x '$pgrp_conjugate)
+                                         (perm-list-from-maxima g '$pgrp_conjugate)))
+    (cons '(mlist simp) (perm-list-conjugate xl gl))))
+
+(defun $pgrp_commutator (x y)
+  "[x, y] = x^-1 y^-1 x y. It is the identity exactly when x and y commute."
+  (destructuring-bind (xl yl)
+      (perm-lists-at-common-degree (list (perm-list-from-maxima x '$pgrp_commutator)
+                                         (perm-list-from-maxima y '$pgrp_commutator)))
+    (cons '(mlist simp) (perm-list-commutator xl yl))))
+
+(defun $pgrp_fixed_points (p)
+  "The points that p leaves where they are, in increasing order."
+  (cons '(mlist simp)
+        (loop :for image :in (perm-list-from-maxima p '$pgrp_fixed_points)
+              :for i :from 1
+              :when (= image i) :collect i)))
+
 (defun $pgrp_compose (&rest perms)
   "pgrp_compose(s, t) is s∘t: apply t first, then s. With more arguments,
    pgrp_compose(a, b, c) is a∘b∘c, so c applies first."

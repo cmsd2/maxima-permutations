@@ -210,3 +210,32 @@
                               (perm-group-handle-degree (perm-hom-target f)))
                       "\\text{pgrp\\_hom}(\\ldots)"))
             r)))
+
+;;; Invariants and a standard homomorphism
+
+(defun $pgrp_order_profile (g)
+  "How many elements of g have each order, as [order, count] pairs in
+   increasing order. Isomorphic groups have the same profile."
+  (let ((counts '()))
+    (dolist (o (order-profile (perm-group-element-lists (perm-group-unwrap g '$pgrp_order_profile)
+                                                        '$pgrp_order_profile)))
+      (if (and counts (= (car (first counts)) o))
+          (incf (cdr (first counts)))
+          (push (cons o 1) counts)))
+    (cons '(mlist simp)
+          (mapcar (lambda (c) (list '(mlist simp) (car c) (cdr c))) (nreverse counts)))))
+
+(defun $pgrp_sign_hom (g)
+  "The sign homomorphism from g to Z_2 = {[1,2], [2,1]}: even permutations
+   go to [1,2] and odd ones to [2,1]. Its kernel is the even part of g."
+  (let* ((src (perm-group-unwrap g '$pgrp_sign_hom))
+         (tgt (perm-group-make (list (list 2 1)) '$pgrp_sign_hom))
+         (images (mapcar (lambda (l)
+                           (if (evenp (reduce #'+ (perm-list-cycles l) :key (lambda (c) (1- (length c)))))
+                               (list 1 2)
+                               (list 2 1)))
+                         (perm-group-generator-lists src))))
+    (when (> (cl-permutation:group-order (perm-group-handle-group src)) $pgrp_max_elements)
+      (merror "pgrp_sign_hom: the group has more than pgrp_max_elements = ~M elements"
+              $pgrp_max_elements))
+    `(($pgrp_hom simp) ,(perm-hom-make src tgt images '$pgrp_sign_hom))))

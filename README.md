@@ -48,6 +48,9 @@ Composition reads right to left, as in Dummit and Foote §1.3:
 | `pgrp_element_order(p)` | the order of p, the lcm of its cycle lengths |
 | `pgrp_sign(p)` | 1 if p is even, -1 if odd |
 | `pgrp_cycle_type(p)` | all cycle lengths, 1-cycles included, largest first |
+| `pgrp_conjugate(x, g)` | the conjugate g x g⁻¹ |
+| `pgrp_commutator(x, y)` | [x, y] = x⁻¹y⁻¹xy, the identity exactly when x and y commute |
+| `pgrp_fixed_points(p)` | the points p doesn't move |
 
 ### Named groups
 
@@ -91,6 +94,7 @@ same degree as the group they came from.
 | `pgrp_orbit(G, x)`, `pgrp_stabiliser(G, x)` | the orbit of point x; the subgroup fixing it |
 | `pgrp_count_orbits(G, k)` | colourings of the points with k colours up to G (Burnside's lemma); k may be a symbol |
 | `pgrp_cycle_index(G, [x])` | the cycle index as a polynomial in `x[1]`, `x[2]`, ... |
+| `pgrp_colouring_orbits(G, k)` | one colouring (a list of colours, one per point) from each orbit, the least in each; as many as `pgrp_count_orbits(G, k)` |
 | `pgrp_regular(G)` | Cayley's theorem: G acting on its elements (in `pgrp_elements` order) by left multiplication |
 
 ### Homomorphisms and isomorphisms
@@ -102,6 +106,8 @@ same degree as the group they came from.
 | `pgrp_kernel(phi)`, `pgrp_image(phi)`, `pgrp_preimage(phi, K)` | subgroups of the source, target and source |
 | `pgrp_isomorphism(G, H)` | an isomorphism, or `false`, found by search |
 | `pgrp_isomorphic_p(G, H)` | whether G ≅ H |
+| `pgrp_order_profile(G)` | [order, count] pairs: how many elements have each order |
+| `pgrp_sign_hom(G)` | the sign homomorphism onto Z_2 = {[1,2], [2,1]}; its kernel is the even part of G |
 
 ### Subgroups and cosets
 
@@ -134,6 +140,7 @@ same degree as the group they came from.
 | `pgrp_sylow(G, p)`, `pgrp_sylow_subgroups(G, p)`, `pgrp_sylow_count(G, p)` | a Sylow p-subgroup; all of them; n_p |
 | `pgrp_direct_product(G, H)` | G × H on disjoint points |
 | `pgrp_abelian_invariants(G)` | invariant factors [d_1, d_2, ...], d_1 \| d_2 \| ..., of an abelian group |
+| `pgrp_abelian_groups(n)` | every abelian group of order n, as lists of invariant factors |
 | `pgrp_stabiliser_chain(G)` | the Schreier–Sims chain as [k, orbit] pairs; the orbit sizes multiply to the order |
 
 Conjugates are g x g⁻¹ and commutators are [x, y] = x⁻¹y⁻¹xy, as in D&F.

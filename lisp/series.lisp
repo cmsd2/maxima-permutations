@@ -218,3 +218,45 @@
                             (cons '(mlist simp) (sort (mapcar #'car sigma) #'<)))
                       steps))
     (cons '(mlist simp) steps)))
+
+(defun integer-partitions-desc (n &optional (largest n))
+  "The partitions of N into parts no larger than LARGEST, parts in
+   decreasing order."
+  (if (zerop n)
+      (list '())
+      (loop :for part :from (min n largest) :downto 1
+            :append (mapcar (lambda (rest) (cons part rest))
+                            (integer-partitions-desc (- n part) part)))))
+
+(defun $pgrp_abelian_groups (n)
+  "Every abelian group of order n, as lists of invariant factors
+   [d_1, ..., d_k] with d_1 | d_2 | ... | d_k, one list per group. Order 1
+   gives [[]]. Lists with more factors come first."
+  (unless (and (integerp n) (>= n 1))
+    (merror "pgrp_abelian_groups: expected a positive integer, got: ~M" n))
+  (if (= n 1)
+      (list '(mlist simp) (list '(mlist simp)))
+      (let* ((per-prime
+               ;; For each prime, every way to split its exponent: lists of
+               ;; prime powers, largest first
+               (mapcar (lambda (pe)
+                         (let ((p (second pe)) (e (third pe)))
+                           (mapcar (lambda (part) (mapcar (lambda (k) (expt p k)) part))
+                                   (integer-partitions-desc e))))
+                       (cdr ($ifactors n))))
+             (choices (reduce (lambda (acc options)
+                                (loop :for a :in acc
+                                      :append (mapcar (lambda (o) (append a (list o))) options)))
+                              per-prime :initial-value (list '())))
+             (groups (mapcar (lambda (choice)
+                               (let ((width (reduce #'max choice :key #'length)))
+                                 (sort (loop :for j :from 0 :below width
+                                             :collect (reduce #'* (mapcar (lambda (powers) (or (nth j powers) 1))
+                                                                          choice)))
+                                       #'<)))
+                             choices)))
+        (cons '(mlist simp)
+              (mapcar (lambda (l) (cons '(mlist simp) l))
+                      (sort groups (lambda (a b)
+                                     (or (> (length a) (length b))
+                                         (and (= (length a) (length b)) (perm-list< a b))))))))))

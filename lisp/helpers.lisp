@@ -53,16 +53,6 @@
          (mapcar (lambda (p) (perm-list-at-degree p n fn)) (cdr x)))
         (t (merror "~M: expected a group or a list of permutations, got: ~M" fn x))))
 
-(defun perm-list-conjugate (x g)
-  "g x g^-1, the conjugate of X by G (D&F §2.2)."
-  (perm-list-compose g (perm-list-compose x (perm-list-inverse g))))
-
-(defun perm-list-commutator (x y)
-  "[x, y] = x^-1 y^-1 x y (D&F §5.4)."
-  (perm-list-compose (perm-list-inverse x)
-                     (perm-list-compose (perm-list-inverse y)
-                                        (perm-list-compose x y))))
-
 (defun perm-list-element-order (l)
   (reduce #'lcm (perm-list-cycle-lengths l) :initial-value 1))
 

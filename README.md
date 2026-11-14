@@ -194,7 +194,7 @@ and check its order, 43252003274489856000.
   directly.
 - The structure functions list elements, so they stop at
   `pgrp_max_elements`. Large groups would need cl-permutation's algorithms
-  or GAP; see `../notes/gap-scscp-interop.md`.
+  or GAP.
 - Character tables and the small-groups library.
 
 ## Tests

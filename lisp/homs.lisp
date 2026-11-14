@@ -120,7 +120,7 @@
 
 ;;; Isomorphism by search: map a small generating set of g to elements of h
 ;;; of the same orders, and keep the first assignment that gives a bijective
-;;; homomorphism. Fine for course-sized groups.
+;;; homomorphism. Fine for textbook-sized groups.
 
 (defun small-generating-set (h fn)
   "A short list of generators of H, picking elements of large order first."

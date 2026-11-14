@@ -41,6 +41,8 @@
 (defun perm-list-from-maxima (p fn)
   "Check that P is a Maxima list holding a permutation of 1..n and return it
    as a Lisp list."
+  (when (perm-form-p p)
+    (return-from perm-list-from-maxima (copy-list (perm-handle-images (cadr p)))))
   (unless ($listp p)
     (merror "~M: expected a permutation as a list of images, got: ~M" fn p))
   (let ((l (cdr p)))
@@ -62,4 +64,4 @@
           (t nil))))
 
 (defun perm-to-maxima (perm)
-  (cons '(mlist simp) (cl-permutation:perm-to-list perm)))
+  (perm-out (cl-permutation:perm-to-list perm)))

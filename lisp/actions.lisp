@@ -22,9 +22,8 @@
 (defun $pgrp_action_perm (g points act)
   "The permutation of points that g induces: entry i is the position of
    act(g, points[i]) in points."
-  (cons '(mlist simp)
-        (action-perm-list g (points-from-maxima points '$pgrp_action_perm) act
-                          '$pgrp_action_perm)))
+  (perm-out (action-perm-list g (points-from-maxima points '$pgrp_action_perm) act
+                             '$pgrp_action_perm)))
 
 (defun $pgrp_from_action (gens points act)
   "The permutation group on 1, ..., length(points) induced by the generators
@@ -157,4 +156,4 @@
                                     (setf (gethash code seen) t)
                                     (push d new)))))
                             (setf frontier new)))))))
-        (maxima-perm-lists (nreverse reps))))))
+        (maxima-int-lists (nreverse reps))))))

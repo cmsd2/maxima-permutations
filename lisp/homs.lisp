@@ -85,7 +85,7 @@
     (multiple-value-bind (value found) (gethash l (perm-hom-table f))
       (unless found
         (merror "pgrp_hom_apply: ~M is not in the source group" p))
-      (cons '(mlist simp) value))))
+      (perm-out value))))
 
 (defun perm-hom-sources-where (f pred)
   (loop :for k :being :the :hash-keys :of (perm-hom-table f) :using (hash-value v)

@@ -25,9 +25,26 @@ load("permutations")$
 
 ## Permutations
 
-A permutation is a list of images, the same form the `combinatorics`
-package uses: `[2,1,3]` maps 1 to 2, 2 to 1 and 3 to 3. Lists of
+Functions return permutations as `pgrp_perm` values, shown in cycle
+notation:
+
+```maxima
+(%i2) pgrp_elements(pgrp_symmetric(3));
+(%o2)            [(), (2 3), (1 2), (1 2 3), (1 3 2), (1 3)]
+```
+
+Every function also accepts a list of images, the form the `combinatorics`
+package uses: `[2,1,3]` maps 1 to 2, 2 to 1 and 3 to 3. `pgrp_perm([2,1,3])`
+turns one into the other and `pgrp_perm_list(p)` turns it back. Lists of
 different lengths are padded with fixed points.
+
+A `pgrp_perm` keeps its degree, so (1 2) in S_4 has cycle type [2, 1, 1].
+Equal permutations of the same degree are the same value, so `=`, `member`,
+`unique` and `setify` work on them. `pgrp_eq` compares permutations of
+different degrees, or a `pgrp_perm` with a list. `string(p)` gives
+`pgrp_perm([...])`, which reads back as p, and `tex(p)` gives the cycles.
+
+Set `pgrp_perm_output : false` to get lists of images back instead.
 
 Composition reads right to left, as in Dummit and Foote §1.3:
 `pgrp_compose(s, t)` is s∘t, which applies `t` first. So
@@ -51,6 +68,13 @@ Composition reads right to left, as in Dummit and Foote §1.3:
 | `pgrp_conjugate(x, g)` | the conjugate g x g⁻¹ |
 | `pgrp_commutator(x, y)` | [x, y] = x⁻¹y⁻¹xy, the identity exactly when x and y commute |
 | `pgrp_fixed_points(p)` | the points p doesn't move |
+| `pgrp_perm(l)`, `pgrp_perm_p(x)` | the permutation with image list l; whether x is a `pgrp_perm` |
+| `pgrp_perm_list(p, [n])` | the image list of p, padded with fixed points to length n if given |
+| `pgrp_apply(p, i)` | the image of the point i; points past the degree are fixed |
+| `pgrp_support(p)` | the points p moves |
+| `pgrp_eq(p, q)` | whether p and q are the same permutation, ignoring degree |
+| `pgrp_sort(l)` | the permutations in l in order of their image lists |
+| `pgrp_degree(p)` | the degree of p |
 
 ### Named groups
 
@@ -94,7 +118,7 @@ same degree as the group they came from.
 | `pgrp_orbit(G, x)`, `pgrp_stabiliser(G, x)` | the orbit of point x; the subgroup fixing it |
 | `pgrp_count_orbits(G, k)` | colourings of the points with k colours up to G (Burnside's lemma); k may be a symbol |
 | `pgrp_cycle_index(G, [x])` | the cycle index as a polynomial in `x[1]`, `x[2]`, ... |
-| `pgrp_colouring_orbits(G, k)` | one colouring (a list of colours, one per point) from each orbit, the least in each; as many as `pgrp_count_orbits(G, k)` |
+| `pgrp_colouring_orbits(G, k)` | one colouring (a list of colours, one per point; not a permutation) from each orbit, the least in each; as many as `pgrp_count_orbits(G, k)` |
 | `pgrp_regular(G)` | Cayley's theorem: G acting on its elements (in `pgrp_elements` order) by left multiplication |
 
 ### Homomorphisms and isomorphisms
@@ -107,7 +131,7 @@ same degree as the group they came from.
 | `pgrp_isomorphism(G, H)` | an isomorphism, or `false`, found by search |
 | `pgrp_isomorphic_p(G, H)` | whether G ≅ H |
 | `pgrp_order_profile(G)` | [order, count] pairs: how many elements have each order |
-| `pgrp_sign_hom(G)` | the sign homomorphism onto Z_2 = {[1,2], [2,1]}; its kernel is the even part of G |
+| `pgrp_sign_hom(G)` | the sign homomorphism onto Z_2 = {(), (1 2)}; its kernel is the even part of G |
 
 ### Subgroups and cosets
 
@@ -154,8 +178,10 @@ Conjugates are g x g⁻¹ and commutators are [x, y] = x⁻¹y⁻¹xy, as in D&F
 (%i3) A4 : pgrp([2,3,1,4], [1,3,4,2])$
 (%i4) [pgrp_order(S4), pgrp_order(A4), pgrp_normal_p(A4, S4)];
 (%o4)                    [24, 12, true]
-(%i5) pgrp_member_p(A4, [2,1,3,4]);
+(%i5) pgrp_member_p(A4, pgrp_from_cycles([[1,2]]));
 (%o5)                         false
+(%i6) pgrp_generators(A4);
+(%o6)                    [(1 2 3), (2 3 4)]
 ```
 
 The tests also build the Rubik's cube group from cl-permutation's README
@@ -176,3 +202,6 @@ and check its order, 43252003274489856000.
 ```bash
 mxpm test permutations
 ```
+
+`rtest_permutations.mac` runs with `pgrp_perm_output : false` and checks
+image lists; `rtest_permutations_perm.mac` checks the `pgrp_perm` values.

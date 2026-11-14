@@ -8,6 +8,7 @@
   :serial t
   :components
   ((:file "handle")
+   (:file "perm-type")
    (:file "display")
    (:file "groups")
    (:file "perms")

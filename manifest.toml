@@ -11,4 +11,4 @@ keywords = ["permutations", "groups", "group-theory", "schreier-sims"]
 quicklisp_systems = ["cl-permutation"]
 
 [test]
-files = ["rtest_permutations.mac"]
+files = ["rtest_permutations.mac", "rtest_permutations_perm.mac"]

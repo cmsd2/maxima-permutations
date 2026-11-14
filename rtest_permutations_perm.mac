@@ -1,0 +1,146 @@
+(kill(all), load("permutations"), 0);
+0;
+
+/* By default permutation results are pgrp_perm values, shown in cycles */
+pgrp_perm_output;
+true;
+
+pgrp_perm_p(pgrp_compose([2,3,1], [2,1,3]));
+true;
+
+pgrp_perm_p([2,1,3]);
+false;
+
+pgrp_cycles(pgrp_from_cycles([[1,2,3]], 4));
+[[1, 2, 3]];
+
+pgrp_cycles(pgrp_identity(3));
+[];
+
+pgrp_cycles(pgrp_compose(pgrp_from_cycles([[1,2,3]]), pgrp_from_cycles([[1,2],[3,4]])));
+[[1, 3, 4]];
+
+/* string() gives a form that reads back as the same permutation */
+string(pgrp_from_cycles([[1,2,3]], 4));
+"pgrp_perm([2,3,1,4])";
+
+is(eval_string(string(pgrp_from_cycles([[1,2,3]], 4))) = pgrp_from_cycles([[1,2,3]], 4));
+true;
+
+/* Equal permutations of the same degree are the same value */
+is(pgrp_compose([2,3,1], [2,3,1]) = pgrp_inverse([2,3,1]));
+true;
+
+member(pgrp_perm([2,1,3]), pgrp_elements(pgrp_symmetric(3)));
+true;
+
+length(setify(map(lambda([g], pgrp_power(g, 2)), pgrp_elements(pgrp_symmetric(3)))));
+3;
+
+/* The degree is kept, so = tells degrees apart and pgrp_eq doesn't */
+is(pgrp_perm([2,1]) = pgrp_perm([2,1,3]));
+false;
+
+pgrp_eq(pgrp_perm([2,1]), pgrp_perm([2,1,3]));
+true;
+
+pgrp_eq([2,1,3], pgrp_perm([2,1]));
+true;
+
+pgrp_eq(pgrp_perm([2,1]), [1,2,3]);
+false;
+
+[pgrp_degree(pgrp_perm([2,1,3,4])), pgrp_degree([2,1]), pgrp_degree(pgrp_symmetric(5))];
+[4, 2, 5];
+
+pgrp_cycle_type(pgrp_from_cycles([[1,2]], 4));
+[2, 1, 1];
+
+/* Points, images and lists */
+block([p : pgrp_from_cycles([[1,3],[2,4,5]])],
+  [pgrp_apply(p, 1), pgrp_apply(p, 2), pgrp_apply(p, 5), pgrp_apply(p, 9)]);
+[3, 4, 2, 9];
+
+pgrp_support(pgrp_from_cycles([[2,4]], 6));
+[2, 4];
+
+pgrp_support(pgrp_identity(4));
+[];
+
+pgrp_perm_list(pgrp_from_cycles([[1,2]], 3));
+[2, 1, 3];
+
+pgrp_perm_list(pgrp_from_cycles([[1,2]]), 4);
+[2, 1, 3, 4];
+
+pgrp_perm_list([3,1,2]);
+[3, 1, 2];
+
+/* pgrp_sort orders by images and keeps each element's form */
+map(pgrp_cycles, pgrp_sort([pgrp_perm([3,1,2]), pgrp_perm([1,2,3]), pgrp_perm([2,1])]));
+[[], [[1, 2]], [[1, 3, 2]]];
+
+map(pgrp_perm_p, pgrp_sort([[2,1], pgrp_perm([1,2,3])]));
+[true, false];
+
+/* Every function that takes a permutation takes a pgrp_perm */
+block([r : pgrp_from_cycles([[1,2,3,4]]), s : pgrp_from_cycles([[2,4]])],
+  [pgrp_order(pgrp(r, s)), pgrp_order(pgrp([r, s])), pgrp_element_order(r), pgrp_sign(s),
+   pgrp_cycles(pgrp_compose(r, s)), pgrp_member_p(pgrp_dihedral(4), s)]);
+[8, 8, 4, -1, [[1, 2], [3, 4]], true];
+
+/* Converted outputs. (2 3)(1 2) = (1 3 2), so the left coset of (2 3) is
+   {(2 3), (1 3 2)} and its right coset is {(2 3), (1 2 3)}. */
+every(pgrp_perm_p, pgrp_generators(pgrp_symmetric(4)));
+true;
+
+pgrp_perm_p(pgrp_random(pgrp_symmetric(4)));
+true;
+
+map(pgrp_cycles, pgrp_elements(pgrp_symmetric(3)));
+[[], [[2, 3]], [[1, 2]], [[1, 2, 3]], [[1, 3, 2]], [[1, 3]]];
+
+pgrp_cycles(pgrp_conjugate(pgrp_from_cycles([[1,2,3]], 5), pgrp_from_cycles([[1,3],[2,4,5]])));
+[[1, 3, 4]];
+
+pgrp_cycles(pgrp_commutator(pgrp_from_cycles([[1,2]], 3), pgrp_from_cycles([[2,3]])));
+[[1, 3, 2]];
+
+map(pgrp_cycles, pgrp_conjugacy_class(pgrp_symmetric(3), [2,1,3]));
+[[[2, 3]], [[1, 2]], [[1, 3]]];
+
+map(lambda([c], map(pgrp_cycles, c)), pgrp_conjugacy_classes(pgrp_symmetric(3)));
+[[[]], [[[2, 3]], [[1, 2]], [[1, 3]]], [[[1, 2, 3]], [[1, 3, 2]]]];
+
+map(lambda([c], map(pgrp_cycles, c)), pgrp_left_cosets(pgrp_symmetric(3), pgrp([2,1,3])));
+[[[], [[1, 2]]], [[[2, 3]], [[1, 3, 2]]], [[[1, 2, 3]], [[1, 3]]]];
+
+map(lambda([c], map(pgrp_cycles, c)), pgrp_right_cosets(pgrp_symmetric(3), pgrp([2,1,3])));
+[[[], [[1, 2]]], [[[2, 3]], [[1, 2, 3]]], [[[1, 3, 2]], [[1, 3]]]];
+
+block([sgn : pgrp_sign_hom(pgrp_symmetric(4))],
+  map(pgrp_cycles, [pgrp_hom_apply(sgn, pgrp_from_cycles([[1,2]], 4)),
+                    pgrp_hom_apply(sgn, pgrp_from_cycles([[1,2,3]], 4))]));
+[[[1, 2]], []];
+
+pgrp_cycles(pgrp_action_perm(matrix([0,1],[1,0]), [[1,0],[0,1],[1,1]],
+                             lambda([g, v], list_matrix_entries(g . transpose(matrix(v))))));
+[[1, 2]];
+
+/* Colourings and abelian groups aren't permutations and stay lists */
+pgrp_colouring_orbits(pgrp_cyclic(3), 2);
+[[1, 1, 1], [1, 1, 2], [1, 2, 2], [2, 2, 2]];
+
+pgrp_abelian_groups(8);
+[[2, 2, 2], [2, 4], [8]];
+
+/* With pgrp_perm_output false, results are lists */
+block([pgrp_perm_output : false], pgrp_compose([2,3,1], [2,1,3]));
+[3, 2, 1];
+
+block([pgrp_perm_output : false], pgrp_elements(pgrp_symmetric(2)));
+[[1, 2], [2, 1]];
+
+/* The cycles display carries over to TeX */
+tex1(pgrp_from_cycles([[1,2],[3,4]]));
+"\\left(1\\ 2\\right)\\left(3\\ 4\\right)";

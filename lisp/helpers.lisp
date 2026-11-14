@@ -20,6 +20,11 @@
     (sort elements #'perm-list<)))
 
 (defun maxima-perm-lists (lists)
+  "A Maxima list of permutation results, one per image list in LISTS."
+  (cons '(mlist simp) (mapcar #'perm-out lists)))
+
+(defun maxima-int-lists (lists)
+  "A Maxima list of lists of integers that are not permutations."
   (cons '(mlist simp) (mapcar (lambda (l) (cons '(mlist simp) l)) lists)))
 
 (defun perm-group-from-lists (lists n fn)

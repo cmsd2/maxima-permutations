@@ -74,14 +74,14 @@
   (destructuring-bind (xl gl)
       (perm-lists-at-common-degree (list (perm-list-from-maxima x '$pgrp_conjugate)
                                          (perm-list-from-maxima g '$pgrp_conjugate)))
-    (cons '(mlist simp) (perm-list-conjugate xl gl))))
+    (perm-out (perm-list-conjugate xl gl))))
 
 (defun $pgrp_commutator (x y)
   "[x, y] = x^-1 y^-1 x y. It is the identity exactly when x and y commute."
   (destructuring-bind (xl yl)
       (perm-lists-at-common-degree (list (perm-list-from-maxima x '$pgrp_commutator)
                                          (perm-list-from-maxima y '$pgrp_commutator)))
-    (cons '(mlist simp) (perm-list-commutator xl yl))))
+    (perm-out (perm-list-commutator xl yl))))
 
 (defun $pgrp_fixed_points (p)
   "The points that p leaves where they are, in increasing order."
@@ -96,24 +96,21 @@
   (when (null perms)
     (merror "pgrp_compose: needs at least one permutation"))
   (let ((lists (mapcar (lambda (p) (perm-list-from-maxima p '$pgrp_compose)) perms)))
-    (cons '(mlist simp)
-          (reduce #'perm-list-compose lists :from-end t))))
+    (perm-out (reduce #'perm-list-compose lists :from-end t))))
 
 (defun $pgrp_inverse (p)
-  (cons '(mlist simp)
-        (perm-list-inverse (perm-list-from-maxima p '$pgrp_inverse))))
+  (perm-out (perm-list-inverse (perm-list-from-maxima p '$pgrp_inverse))))
 
 (defun $pgrp_power (p k)
   "p composed with itself k times; k may be negative or zero."
   (unless (integerp k)
     (merror "pgrp_power: the exponent must be an integer, got: ~M" k))
-  (cons '(mlist simp)
-        (perm-list-power (perm-list-from-maxima p '$pgrp_power) k)))
+  (perm-out (perm-list-power (perm-list-from-maxima p '$pgrp_power) k)))
 
 (defun $pgrp_identity (n)
   (unless (and (integerp n) (>= n 1))
     (merror "pgrp_identity: the degree must be a positive integer, got: ~M" n))
-  (cons '(mlist simp) (perm-list-identity n)))
+  (perm-out (perm-list-identity n)))
 
 (defun $pgrp_cycles (p)
   "The disjoint cycle decomposition of p, without 1-cycles. The identity
@@ -150,11 +147,10 @@
          (deg (or n top)))
     (unless (and (integerp deg) (>= deg top))
       (merror "pgrp_from_cycles: the degree must be an integer at least ~M, got: ~M" top deg))
-    (cons '(mlist simp)
-          (reduce #'perm-list-compose
-                  (mapcar (lambda (c) (cycle-to-perm-list c deg)) cs)
-                  :from-end t
-                  :initial-value (perm-list-identity deg)))))
+    (perm-out (reduce #'perm-list-compose
+                      (mapcar (lambda (c) (cycle-to-perm-list c deg)) cs)
+                      :from-end t
+                      :initial-value (perm-list-identity deg)))))
 
 (defun $pgrp_element_order (p)
   "The order of the permutation p: the lcm of its cycle lengths."

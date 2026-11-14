@@ -1,5 +1,7 @@
 # permutations
 
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://cmsd2.github.io/maxima-permutations/)
+
 Permutation groups for Maxima, built on Robert Smith's
 [cl-permutation](https://github.com/stylewarning/cl-permutation). Proof of
 concept; SBCL only.
@@ -7,6 +9,10 @@ concept; SBCL only.
 Maxima's `combinatorics` package works on single permutations. This package
 adds groups: order, membership, subgroups, normal subgroups, orbits and
 element lists, computed with cl-permutation's Schreier–Sims implementation.
+
+The [documentation](https://cmsd2.github.io/maxima-permutations/) has every
+function with examples. After `load("permutations")`, `? pgrp_compose` and
+the like show the same entries in Maxima.
 
 ## Install
 

@@ -18,3 +18,9 @@
 
 ;; Quicklisp resolves cl-permutation and its dependencies
 (funcall (intern "QUICKLOAD" :ql) "maxima-permutations" :silent t)
+
+;; Load the doc index for ? and ?? help (built by mxpm doc build), if present
+(let* ((here (make-pathname :directory (pathname-directory *load-truename*)))
+       (idx (merge-pathnames "permutations-index.lisp" here)))
+  (when (probe-file idx)
+    ($load (namestring idx))))

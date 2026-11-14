@@ -3,3 +3,8 @@
 # Failure reports from rtest runs (mxpm test, batch with test)
 *.ERR
 *.fasl
+# Doc build intermediates (mxpm doc build)
+doc/book/
+doc/*.texi
+doc/*.expanded.md
+doc/*.info

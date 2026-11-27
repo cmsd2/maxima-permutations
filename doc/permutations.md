@@ -47,6 +47,7 @@ Most structure functions list a group's elements, so they refuse groups with mor
 <!-- include: single-permutations.md -->
 <!-- include: named-groups.md -->
 <!-- include: groups.md -->
+<!-- include: graphs.md -->
 <!-- include: actions.md -->
 <!-- include: homomorphisms.md -->
 <!-- include: subgroups.md -->

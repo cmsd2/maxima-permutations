@@ -431,3 +431,74 @@ true;
 
 errcatch(pgrp_abelian_groups(0));
 [];
+
+/* Cayley graphs: A5 from an element of order 5 and one of order 2 whose
+   product has order 3.  60 vertices, 60 edges from the 5-cycle and 30 from
+   the involution, each once */
+(A5c : pgrp([2,3,4,5,1], [2,1,4,3,5]),
+ C5 : pgrp_cayley_graph(A5c),
+ [C5[1], length(C5[2]),
+  map(lambda([k], length(sublist(C5[2], lambda([e], e[3] = k)))), [1, 2])]);
+[60, 90, [60, 30]];
+
+/* Each edge joins g to g∘s, vertices numbered as pgrp_elements */
+block([els : pgrp_elements(A5c), gens : pgrp_generators(A5c)],
+  every(lambda([e], is(els[e[2]] = pgrp_compose(els[e[1]], gens[e[3]]))), C5[2]));
+true;
+
+/* The involution's edges come once each, smaller vertex first */
+every(lambda([e], is(e[1] < e[2])), sublist(C5[2], lambda([e], e[3] = 2)));
+true;
+
+/* Generators given explicitly; an identity generator adds no edges */
+block([C : pgrp_cayley_graph(pgrp_cyclic(4), [[2,3,4,1], [1,2,3,4]])],
+  [C[1], C[2]]);
+[4, [[1, 2, 1], [2, 3, 1], [3, 4, 1], [4, 1, 1]]];
+
+errcatch(pgrp_cayley_graph(pgrp_cyclic(4), [[2,1,3,4]]));
+[];
+
+/* The spectral layout puts A5's graph on a sphere with two edge lengths,
+   one for the pentagons and one for the seams: the truncated icosahedron */
+block([P : pgrp_spectral_layout(C5), norms, len],
+  norms : map(lambda([p], sqrt(p . p)), P),
+  len : lambda([e], block([d : P[e[1]] - P[e[2]]], sqrt(d . d))),
+  [length(P), length(first(P)),
+   is(lmax(norms) - lmin(norms) < 1e-9),
+   is(abs(lmax(norms) - 1) < 1e-12),
+   every(lambda([k], block([ls : map(len, sublist(C5[2], lambda([e], e[3] = k)))],
+                       is(lmax(ls) - lmin(ls) < 1e-9))), [1, 2])]);
+[60, 3, true, true, true];
+
+/* S4 from a 4-cycle and a transposition: the truncated octahedron, 24
+   points on a sphere */
+block([P : pgrp_spectral_layout(pgrp_cayley_graph(pgrp([2,3,4,1], [2,1,3,4]))), norms],
+  norms : map(lambda([p], sqrt(p . p)), P),
+  [length(P), is(lmax(norms) - lmin(norms) < 1e-9)]);
+[24, true];
+
+/* D10 from a rotation and a reflection: a pentagonal prism, its two
+   pentagons in parallel planes */
+block([P : pgrp_spectral_layout(pgrp_cayley_graph(pgrp([2,3,4,5,1], [1,5,4,3,2])), 2)],
+  length(P));
+10;
+
+/* A dimension that splits a repeated eigenvalue is refused, as are
+   graphs in pieces and malformed graphs */
+errcatch(pgrp_spectral_layout(C5, 2));
+[];
+
+errcatch(pgrp_spectral_layout(pgrp_cayley_graph(A5c, [[2,3,4,5,1]])));
+[];
+
+errcatch(pgrp_spectral_layout([3, [[1, 4]]]));
+[];
+
+errcatch(pgrp_spectral_layout(C5, 0));
+[];
+
+/* A layout works for any graph given as [n, edges]: a 4-cycle in the plane */
+block([P : pgrp_spectral_layout([4, [[1,2], [2,3], [3,4], [4,1]]], 2), d],
+  d : lambda([i, j], block([v : P[i] - P[j]], v . v)),
+  [is(abs(d(1,3) - 4) < 1e-9), is(abs(d(1,2) - 2) < 1e-9)]);
+[true, true];

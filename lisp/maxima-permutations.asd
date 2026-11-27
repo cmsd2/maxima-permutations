@@ -2,7 +2,7 @@
 
 (defsystem "maxima-permutations"
   :description "Permutation groups for Maxima, built on cl-permutation"
-  :version "0.1.0"
+  :version "0.2.0"
   :license "MIT"
   :depends-on ("cl-permutation")
   :serial t

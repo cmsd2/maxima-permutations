@@ -14,6 +14,7 @@
    (:file "perms")
    (:file "named")
    (:file "helpers")
+   (:file "graphs")
    (:file "actions")
    (:file "homs")
    (:file "subgroups")

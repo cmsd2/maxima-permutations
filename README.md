@@ -108,6 +108,8 @@ Composition reads right to left, as in Dummit and Foote §1.3:
 | `pgrp_random(G)` | a uniformly random element |
 | `pgrp_elements(G)` | all elements in lexicographic order, up to `pgrp_max_elements` (default 100000) |
 | `pgrp_cayley_table(G or list, [labels])` | the Cayley table as a matrix: row a, column b holds a∘b, labelled 1, 2, ... or with the labels given; fails if the list isn't closed |
+| `pgrp_cayley_graph(G, [gens])` | the Cayley graph as `[n, edges]`: vertex i is the i-th of `pgrp_elements(G)`, and edge `[i, j, k]` joins g_i to g_i∘s_k; a generator of order 2 gives each edge once |
+| `pgrp_spectral_layout(C, [dim])` | a point in `dim` dimensions (default 3) for each vertex of a graph `[n, edges]`, from its Laplacian's eigenvectors; draws a Cayley graph with the group's symmetry |
 
 Most functions below work by listing elements, so they refuse groups with
 more than `pgrp_max_elements` elements. `pgrp_order`, `pgrp_member_p`,

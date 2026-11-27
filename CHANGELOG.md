@@ -24,7 +24,7 @@ compatibility).
   that splits a repeated eigenvalue and lists the sizes that work.
   `pgrp_spectral_max_vertices` (default 1000) caps the graph size.
 
-## [0.1.0] - 2026-11-22
+## [0.1.0] - 2026-11-14
 
 The first version: permutation groups built on cl-permutation (SBCL only).
 Groups by generators and the named families, order and membership by

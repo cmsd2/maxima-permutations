@@ -1,6 +1,6 @@
 [package]
 name = "permutations"
-version = "0.1.0"
+version = "0.2.0"
 description = "Permutation groups for Maxima, built on cl-permutation (SBCL only)"
 license = "MIT"
 entry = "permutations.mac"

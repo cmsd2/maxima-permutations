@@ -136,6 +136,36 @@
       ],
       "section": "Permutation values"
     },
+    "pgrp_cayley_graph": {
+      "type": "Function",
+      "signature": "pgrp_cayley_graph(G)",
+      "summary": "Returns the Cayley graph of G as [n, edges].",
+      "body_md": "Returns the Cayley graph of `G` as `[n, edges]`.\n\nCalling forms:\n\n- `pgrp_cayley_graph(G)`: for the generators `pgrp_generators(G)`\n- `pgrp_cayley_graph(G, gens)`: for the permutations in the list `gens`, which must be elements of `G`\n\nVertex i is the i-th element of `pgrp_elements(G)`. Each edge is `[i, j, k]`: generator k takes vertex i to vertex j, so element j is g_i∘s_k (apply s_k, then g_i). A generator of order 2 gives each edge once, with i < j, since s takes j back to i. An identity generator adds no edges. Generators that don't generate `G` give a graph in several pieces.\n\n#### Examples\n\n```maxima\n(%i1) A5 : pgrp([2,3,4,5,1], [2,1,4,3,5])$\n(%i2) C : pgrp_cayley_graph(A5)$\n(%i3) [C[1], length(C[2])];\n(%o3) [60, 90]\n(%i4) map(lambda([k], length(sublist(C[2], lambda([e], e[3] = k)))), [1, 2]);\n(%o4) [60, 30]\n```\n\nSee also: `pgrp_spectral_layout`, `pgrp_elements`, `pgrp_cayley_table`",
+      "examples": [
+        {
+          "input": "A5 : pgrp([2,3,4,5,1], [2,1,4,3,5])$",
+          "output": ""
+        },
+        {
+          "input": "C : pgrp_cayley_graph(A5)$",
+          "output": ""
+        },
+        {
+          "input": "[C[1], length(C[2])];",
+          "output": "[60, 90]"
+        },
+        {
+          "input": "map(lambda([k], length(sublist(C[2], lambda([e], e[3] = k)))), [1, 2]);",
+          "output": "[60, 30]"
+        }
+      ],
+      "see_also": [
+        "pgrp_spectral_layout",
+        "pgrp_elements",
+        "pgrp_cayley_table"
+      ],
+      "section": "Cayley graphs"
+    },
     "pgrp_cayley_table": {
       "type": "Function",
       "signature": "pgrp_cayley_table(G)",
@@ -1474,6 +1504,58 @@
       ],
       "section": "Permutation values"
     },
+    "pgrp_spectral_layout": {
+      "type": "Function",
+      "signature": "pgrp_spectral_layout(C)",
+      "summary": "Returns a point for each vertex of the graph C, from the eigenvectors of its Laplacian.",
+      "body_md": "Returns a point for each vertex of the graph `C`, from the eigenvectors of its Laplacian.\n\nCalling forms:\n\n- `pgrp_spectral_layout(C)`: points in 3 dimensions\n- `pgrp_spectral_layout(C, dim)`: points in `dim` dimensions\n\n`C` is `[n, edges]`, as `pgrp_cayley_graph` returns, with edges `[i, j]` or `[i, j, k]`. The coordinates of vertex i are the i-th entries of the eigenvectors for the `dim` lowest eigenvalues above zero. The points are scaled so the furthest is 1 from the origin; their rotation is arbitrary.\n\nFor a Cayley graph each eigenspace is a sum of copies of an irreducible representation, so the layout puts the vertices on an orbit of the group acting by rotations and the picture shows the group's symmetry. When eigenvalues repeat, `dim` must take all of a repeated eigenvalue or none, or the layout would rest on an arbitrary choice of vectors; the error lists the sizes allowed. A graph in several pieces is refused.\n\nThe work grows as the cube of the number of vertices: A_6, with 360, takes about ten seconds.\n\n#### Examples\n\n```maxima\n(%i1) A5 : pgrp([2,3,4,5,1], [2,1,4,3,5])$\n(%i2) P : pgrp_spectral_layout(pgrp_cayley_graph(A5))$\n(%i3) /* every point is on the unit sphere */\n      [length(P), every(lambda([p], is(abs(p . p - 1) < 1e-9)), P)];\n(%o3) [60, true]\n(%i4) pgrp_spectral_layout(pgrp_cayley_graph(A5), 2);\npgrp_spectral_layout: the lowest eigenvalues above zero come in groups of\n               [3, 5, 3, 4, 9, 5], so dim must be one of [3, 8, 11, 15, 24, 29]\n```\n\nWith ax-plots, `ax_graph` draws the result:\n\n```maxima\n(%i5) load(\"ax-plots\")$\n(%i6) C : pgrp_cayley_graph(A5)$\n(%i7) ax_draw3d(ax_graph(pgrp_spectral_layout(C), C, edge_colors = [\"#1f2440\", \"#e0452b\"]))$\n```\n\nSee also: `pgrp_cayley_graph`, `pgrp_spectral_max_vertices`",
+      "examples": [
+        {
+          "input": "A5 : pgrp([2,3,4,5,1], [2,1,4,3,5])$",
+          "output": ""
+        },
+        {
+          "input": "P : pgrp_spectral_layout(pgrp_cayley_graph(A5))$",
+          "output": ""
+        },
+        {
+          "input": "/* every point is on the unit sphere */\n      [length(P), every(lambda([p], is(abs(p . p - 1) < 1e-9)), P)];",
+          "output": "[60, true]"
+        },
+        {
+          "input": "pgrp_spectral_layout(pgrp_cayley_graph(A5), 2);\npgrp_spectral_layout: the lowest eigenvalues above zero come in groups of\n               [3, 5, 3, 4, 9, 5], so dim must be one of [3, 8, 11, 15, 24, 29]",
+          "output": ""
+        },
+        {
+          "input": "load(\"ax-plots\")$",
+          "output": ""
+        },
+        {
+          "input": "C : pgrp_cayley_graph(A5)$",
+          "output": ""
+        },
+        {
+          "input": "ax_draw3d(ax_graph(pgrp_spectral_layout(C), C, edge_colors = [\"#1f2440\", \"#e0452b\"]))$",
+          "output": ""
+        }
+      ],
+      "see_also": [
+        "pgrp_cayley_graph",
+        "pgrp_spectral_max_vertices"
+      ],
+      "section": "Cayley graphs"
+    },
+    "pgrp_spectral_max_vertices": {
+      "type": "Variable",
+      "signature": "pgrp_spectral_max_vertices",
+      "summary": "Default value: 1000. The largest graph that pgrp_spectral_layout will lay out.",
+      "body_md": "Default value: 1000. The largest graph that `pgrp_spectral_layout` will lay out.\n\nSee also: `pgrp_spectral_layout`",
+      "examples": [],
+      "see_also": [
+        "pgrp_spectral_layout"
+      ],
+      "section": "Cayley graphs"
+    },
     "pgrp_stabiliser": {
       "type": "Function",
       "signature": "pgrp_stabiliser(G, x)",
@@ -1687,6 +1769,10 @@
         {
           "title": "Groups",
           "body_md": "A group is given by generators. `pgrp_order` and `pgrp_member_p` use cl-permutation's Schreier–Sims implementation, so they work on very large groups. Functions that list a group's elements refuse groups with more than `pgrp_max_elements` elements."
+        },
+        {
+          "title": "Cayley graphs",
+          "body_md": "A Cayley graph draws a group: a vertex for each element, and an edge from g to g∘s for each generator s. `pgrp_cayley_graph` returns the graph as plain lists, so any plotting package can draw it. `pgrp_spectral_layout` places the vertices using the graph alone. For A_5 generated by an element of order 5 and one of order 2 whose product has order 3, the layout is the truncated icosahedron: a football, with the order-5 generator tracing its 12 pentagons."
         },
         {
           "title": "Actions and counting",
